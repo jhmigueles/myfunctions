@@ -22,6 +22,8 @@
 #' @return
 #' @export
 #'
+#' @import ggplot2
+#'
 #' @examples
 reallocationPlot = function(data = c(), comp = c(),
                             comp_fup = NULL,
@@ -75,24 +77,24 @@ reallocationPlot = function(data = c(), comp = c(),
     # PLOT
     if(length(font) > 0) windowsFonts(Times=windowsFont(font))
 
-    yourPlot = ggplot(data) +
-      geom_hline(yintercept = 0, color = "black") +
+    yourPlot = ggplot2::ggplot(data) +
+      ggplot2::geom_hline(yintercept = 0, color = "black") +
       # geom_line(aes(delta, delta_pred, group = Replaced, color = Replaced), size = 2) +
-      geom_line(aes(delta, delta_pred, group = Replaced), size = 2) +
+      ggplot2::geom_line(ggplot2::aes(delta, delta_pred, group = Replaced), size = 2) +
       # Settings
-      theme_bw()+
-      labs(x=xlab,
+      ggplot2::theme_bw()+
+      ggplot2::labs(x=xlab,
            y=ylab) +
-      scale_x_continuous(breaks = seq(xlim[1], xlim[2], by = xaxis.by)/1440,
+      ggplot2::scale_x_continuous(breaks = seq(xlim[1], xlim[2], by = xaxis.by)/1440,
                          labels = seq(xlim[1], xlim[2], by = xaxis.by)) +
-      scale_y_continuous(limits=ylim) +
+      ggplot2::scale_y_continuous(limits=ylim) +
       # theme(text=element_text(family="Times", size = 12))
-      theme(text=element_text(size = 12))
+      ggplot2::theme(text=ggplot2::element_text(size = 12))
 
     # RIBBON?
     if(isTRUE(ribbon)){
       yourPlot = yourPlot +
-        geom_ribbon(aes(x = delta, ymin = ci_lo, ymax = ci_up,
+        ggplot2::geom_ribbon(ggplot2::aes(x = delta, ymin = ci_lo, ymax = ci_up,
                         group = Replaced), alpha = 0.2)
     }
   } else if(comparisons == "prop-realloc"){
@@ -101,23 +103,23 @@ reallocationPlot = function(data = c(), comp = c(),
     # PLOT
     # windowsFonts(Times=windowsFont("Times New Roman"))
 
-    yourPlot = ggplot(data) +
-      geom_hline(yintercept = 0, color = "black") +
-      geom_line(aes(delta, delta_pred), size = 2) +
+    yourPlot = ggplot2::ggplot(data) +
+      ggplot2::geom_hline(yintercept = 0, color = "black") +
+      ggplot2::geom_line(ggplot2::aes(delta, delta_pred), size = 2) +
 
       # Settings
-      theme_bw()+
-      labs(x=xlab, y=ylab) +
-      scale_x_continuous(breaks = seq(xlim[1], xlim[2], by = xaxis.by)/1440,
+      ggplot2::theme_bw()+
+      ggplot2::labs(x=xlab, y=ylab) +
+      ggplot2::scale_x_continuous(breaks = seq(xlim[1], xlim[2], by = xaxis.by)/1440,
                          labels = seq(xlim[1], xlim[2], by = xaxis.by)) +
-      scale_y_continuous(limits=ylim) +
+      ggplot2::scale_y_continuous(limits=ylim) +
       # theme(text=element_text(family="Times", size = 12))
-      theme(text=element_text(size = 12))
+      ggplot2::theme(text=ggplot2::element_text(size = 12))
 
     # RIBBON?
     if(isTRUE(ribbon)){
       yourPlot = yourPlot +
-        geom_ribbon(aes(x = delta, ymin = ci_lo, ymax = ci_up),
+        ggplot2::geom_ribbon(aes(x = delta, ymin = ci_lo, ymax = ci_up),
                     alpha = 0.2, colour= NA)
     }
   }

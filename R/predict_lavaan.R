@@ -6,26 +6,28 @@
 #' @return data frame with predictions
 #' @export
 #'
-#' @examples
-#' predict_lavaan(fit, newdata)
+#' @importFrom lavaan inspect lavNames
+#'
+#' @examples predict_lavaan(fit, newdata)
+#'
 predict_lavaan <- function(fit, newdata = NULL){
   stopifnot(inherits(fit, "lavaan"))
 
   #Make sure we can use this
-  if (!inspect(fit, "meanstructure")) stop("Need to supply meanstructure = TRUE in fit\n")
+  if (!lavaan::inspect(fit, "meanstructure")) stop("Need to supply meanstructure = TRUE in fit\n")
   if (is.null(newdata)) {
-    newdata <- data.frame(inspect(fit, "data"))
-    names(newdata) <- lavNames(fit)
+    newdata <- data.frame(lavaan::inspect(fit, "data"))
+    names(newdata) <- lavaan::lavNames(fit)
   }
 
-  if(length(lavNames(fit, type="lv")) != 0) stop("Does not currently work with latent variables\n")
+  if (length(lavaan::lavNames(fit, type = "lv")) != 0) stop("Does not currently work with latent variables\n")
 
   #check for new data
-  if(sum(!(lavNames(fit, type="ov.x") %in% names(newdata)))>0) stop("Not all exogenous variables supplied!")
+  if (sum(!(lavaan::lavNames(fit, type = "ov.x") %in% names(newdata))) > 0) stop("Not all exogenous variables supplied!")
 
   #Add some new columns to newdata
   newdata$Intercept <- 1
-  newdata[lavNames(fit, "ov.nox")] <- 0
+  newdata[lavaan::lavNames(fit, "ov.nox")] <- 0
 
 
   mod_df <- data.frame(lhs = fit@ParTable$lhs,

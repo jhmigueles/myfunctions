@@ -17,6 +17,8 @@
 #' @return
 #' @export
 #'
+#' @importFrom compositions gsi.buildilrBase ilr
+#'
 #' @examples
 get_predictions_coda = function(data = c(),            # dataframe with COMPOSITION (BASELINE (AND FOLLWOUP), OUTCOME, COVARIATES)
                                 comp_bl = c(),    # names of composition variables in your dataset (baseline)

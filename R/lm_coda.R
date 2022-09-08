@@ -14,6 +14,7 @@
 #'
 #' @return List with models fit for each one of the ILR coordinates as leading coordinate
 #' @export
+#' @importFrom  compositions gsi.buildilrBase ilr
 #'
 #' @examples
 lm_coda = function(compo_baseline,    # Variable names for the baseline composition
@@ -107,14 +108,14 @@ lm_coda = function(compo_baseline,    # Variable names for the baseline composit
         model = lm(outcome_change~., data = cbind(compo_base, compo_change,
                                                   dat[,outcome_baseline]))
       } else if (length(moderator) == 1) { # moderation analysis
-        if (analysis == "prospective") {
+        if (longAnalysis == "prospective") {
           ind = cbind(compo_base, compo_change,
                       dat[,outcome_baseline],
                       dat[,moderator],
                       compo_base[,1] * dat[,moderator])
           colnames(ind)[ncol(ind)] = paste0("ilr1_base*", moderator)
           model = lm(outcome_change~., data = ind)
-        } else if (analysis == "change") {
+        } else if (longAnalysis == "change") {
           ind = cbind(compo_base, compo_change,
                       dat[,outcome_baseline],
                       dat[,moderator],
@@ -132,7 +133,7 @@ lm_coda = function(compo_baseline,    # Variable names for the baseline composit
                                                   dat[,outcome_baseline],
                                                   dat[,covariates]))
       } else if (length(moderator) == 1) { # moderation analysis
-        if (analysis == "prospective") {
+        if (longAnalysis == "prospective") {
           ind = cbind(compo_base, compo_change,
                       dat[,outcome_baseline],
                       dat[,moderator],
@@ -140,7 +141,7 @@ lm_coda = function(compo_baseline,    # Variable names for the baseline composit
                       compo_base[,1] * dat[,moderator])
           colnames(ind)[ncol(ind)] = paste0("ilr1_base*", moderator)
           model = lm(outcome_change~., data = ind)
-        } else if (analysis == "change") {
+        } else if (longAnalysis == "change") {
           ind = cbind(compo_base, compo_change,
                       dat[,outcome_baseline],
                       dat[,moderator],

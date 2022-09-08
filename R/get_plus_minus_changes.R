@@ -14,6 +14,8 @@
 #' @return
 #' @export
 #'
+#' @importFrom  compositions gsi.buildilrBase ilr
+#'
 #' @examples
 get_plus_minus_changes<-function(
     dataf, # data.frame of data
