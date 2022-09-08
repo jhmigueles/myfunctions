@@ -7,6 +7,8 @@
 #' @return
 #' @export
 #'
+#' @importFrom grDevices rgb
+#'
 #' @examples
 add_alpha <- function(col, alpha = 1){
   if (missing(col)) stop("Please provide a vector of colours.")

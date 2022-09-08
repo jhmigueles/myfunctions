@@ -8,10 +8,13 @@
 #' @return Nothing, it saves a csv and pdf file with descriptives and visualizations
 #' @export
 #'
+#' @importFrom utils txtProgressBar setTxtProgressBar
+#' @importFrom car qqPlot Boxplot
+
 #' @examples
 explore = function(dat=c(), idvar=c(), outputdir="./"){
 
-  if(is.character(dat)){
+  if (is.character(dat)) {
     if(grep(".csv", dat, fixed = TRUE) == 1) {
       dat = read.csv(file=dat)
     } else {print("No .csv file provided")}

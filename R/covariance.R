@@ -6,16 +6,18 @@
 #' @return Matrix with covariance values
 #' @export
 #'
+#' @importFrom gtools permutations
+#'
 #' @examples
 covariance = function(x){
   x = x[complete.cases(x),]
   D = ncol(x)
-  perms = permutations(n=D,r=2,v=1:D, repeats.allowed = T)
+  perms = permutations(n = D, r = 2, v = 1:D, repeats.allowed = T)
 
   # covariance matrix
   cov = matrix(data = NA, ncol = D, nrow = D)
   colnames(cov) = rownames(cov) = colnames(x)
-  for(i in 1:nrow(perms)){
+  for (i in 1:nrow(perms)) {
     p1 = perms[i,1]; p2 = perms[i,2]
     cov[p1,p2] = var(log(x[,p1] / x[,p2]))
   }
