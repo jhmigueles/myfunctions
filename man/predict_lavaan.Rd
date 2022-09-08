@@ -19,4 +19,5 @@ predict_lavaan
 }
 \examples{
 predict_lavaan(fit, newdata)
+
 }

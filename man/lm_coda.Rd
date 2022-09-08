@@ -2,45 +2,24 @@
 % Please edit documentation in R/lm_coda.R
 \name{lm_coda}
 \alias{lm_coda}
-\title{lm_coda}
+\title{Basic function for cross-sectional linear regression CoDA models}
 \usage{
-lm_coda(
-  compo_baseline,
-  compo_followup,
-  outcome_baseline,
-  outcome_followup,
-  moderator = c(),
-  longAnalysis = c("prospective", "change")[1],
-  covariates,
-  scale = FALSE,
-  balance = NA,
-  dat = db_P1
-)
+lm_coda(data, compo, outcome, covariates = c(), scale = FALSE)
 }
 \arguments{
-\item{compo_baseline}{Variable names for the baseline composition}
+\item{data}{data frame or matrix with variables of interest}
 
-\item{compo_followup}{Variable names for the follow-up composition (optional)}
+\item{compo}{String with colnames of composition variables or matrix/dataframe with these variables}
 
-\item{outcome_baseline}{Variable name for the baseline outcome}
+\item{outcome}{String with colname of outcome or numeric vector with the outcome}
 
-\item{outcome_followup}{Variable name for the follow-up outcome (optional)}
+\item{covariates}{String with names of covariates (optional) or matrix/dataframe with these variables}
 
-\item{moderator}{Moderator variable, if any (optional)}
-
-\item{longAnalysis}{Longitudinal analysis to perform, either prospective or changes for now.}
-
-\item{covariates}{Numeric, matrix, or data frame with the covariates to adjust the models for}
-
-\item{scale}{Logical, whether to standardize or not the output (default = FALSE)}
-
-\item{balance}{Balance between behaviors to be used in the ILR coordinates}
-
-\item{dat}{Data frame with data}
+\item{scale}{Logica. Whether to standardize results (default = FALSE)}
 }
 \value{
-List with models fit for each one of the ILR coordinates as leading coordinate
+Linear regression model (lm class)
 }
 \description{
-Run compositional linear regression models using isometric log ratios. Option to perform longitudinal models and moderation analyses implemented.
+Basic function for cross-sectional linear regression CoDA models
 }

@@ -6,10 +6,9 @@
 #' @param cols numeric scalar giving the number of columns in the layout
 #' @param layout Matrix with layout for plots. If present, cols is ignored.
 #'
-#' @return
+#' @return Multipanel plots
 #' @export
 #' @importFrom grid grid.newpage pushViewport grid.layout
-#' @examples
 multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
 
   # Make a list from the ... arguments and plotlist

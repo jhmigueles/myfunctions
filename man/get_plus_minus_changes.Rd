@@ -35,6 +35,9 @@ get_plus_minus_changes(
 
 \item{verbose}{Whether to print output on the progress in the console.}
 }
+\value{
+Data frame with predictions
+}
 \description{
 Get predictions from compositional ilr multiple linear regression model
 }

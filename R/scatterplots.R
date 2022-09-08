@@ -9,10 +9,9 @@
 #' @param ylab Y axis label
 #' @param data Data frame
 #'
-#' @return
+#' @return formated scatter plots
 #' @export
 #'
-#' @examples
 scatterplots = function(x, y, ylim=c(), pch=c(), main=c(), xlab=c(), ylab=c(), data = c()){
 
   # Pearson

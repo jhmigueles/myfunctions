@@ -11,6 +11,9 @@ add_alpha(col, alpha = 1)
 
 \item{alpha}{Alpha level (between 0 and 1)}
 }
+\value{
+Color with alpha level applied
+}
 \description{
 A function to add alpha levels to RGB colors
 }

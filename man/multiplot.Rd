@@ -15,6 +15,9 @@ multiplot(..., plotlist = NULL, cols = 1, layout = NULL)
 
 \item{layout}{Matrix with layout for plots. If present, cols is ignored.}
 }
+\value{
+Multipanel plots
+}
 \description{
 Place multiple \code{ggplot} plots on one page.
 }

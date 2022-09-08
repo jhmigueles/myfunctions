@@ -4,10 +4,9 @@
 #' @param x Numeric vector
 #' @param k Constant to consider outliers (default = 1.5)
 #'
-#' @return
+#' @return Number of outliers in variable
 #' @export
 #'
-#' @examples
 outliers = function(x, k = 1.5){
   iqr = IQR(x, na.rm = T)
   q1 = quantile(x, probs = 0.25, na.rm = T)

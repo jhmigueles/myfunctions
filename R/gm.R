@@ -7,7 +7,6 @@
 #' @return Geometric mean of the vector
 #' @export
 #'
-#' @examples
 gm = function(x, na.rm = T) {
   exp(mean(log(x), na.rm = na.rm))
 }

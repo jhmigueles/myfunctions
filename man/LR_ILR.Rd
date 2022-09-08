@@ -9,6 +9,9 @@ LR_ILR(compo)
 \arguments{
 \item{compo}{Matrix or data frame with a composition}
 }
+\value{
+Matrix with isometric log ratios calculated
+}
 \description{
 Calculates the isometric log ratio coordinates of a composition for Analysis of Compositional Data.
 }

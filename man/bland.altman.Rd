@@ -21,6 +21,9 @@ bland.altman(x, y, ylim = c(), pch = c(), main = c(), xlab = c(), ylab = c())
 
 \item{ylab}{Y axis label}
 }
+\value{
+Bland altman plot
+}
 \description{
 bland.altman
 }

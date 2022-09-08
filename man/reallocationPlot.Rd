@@ -56,6 +56,9 @@ reallocationPlot(
 
 \item{font}{Font to use (default = "Times New Roman")}
 }
+\value{
+reallocation plot with predictions
+}
 \description{
 Visualization of predictions from CoDA model
 }

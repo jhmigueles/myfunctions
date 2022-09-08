@@ -19,12 +19,11 @@
 #' @param font Font to use (default = "Times New Roman")
 #'
 #' @details If follow-up composition is provided, it will run prospective and change models/visualizations
-#' @return
+#' @return reallocation plot with predictions
 #' @export
 #'
 #' @import ggplot2
 #'
-#' @examples
 reallocationPlot = function(data = c(), comp = c(),
                             comp_fup = NULL,
                             comp.names = c(),

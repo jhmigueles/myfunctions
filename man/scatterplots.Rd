@@ -32,6 +32,9 @@ scatterplots(
 
 \item{data}{Data frame}
 }
+\value{
+formated scatter plots
+}
 \description{
 scatterplots
 }

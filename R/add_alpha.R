@@ -4,12 +4,11 @@
 #' @param col Color
 #' @param alpha Alpha level (between 0 and 1)
 #'
-#' @return
+#' @return Color with alpha level applied
 #' @export
 #'
 #' @importFrom grDevices rgb
-#'
-#' @examples
+
 add_alpha <- function(col, alpha = 1){
   if (missing(col)) stop("Please provide a vector of colours.")
   apply(sapply(col, col2rgb)/255, 2,

@@ -14,12 +14,11 @@
 #' @param delta minutes to reallocate for prediction (e.g., +30 min)
 #' @param model "cross-sectional", "longitudinal", or "change"
 #'
-#' @return
+#' @return Matrix with predictions
 #' @export
 #'
 #' @importFrom compositions gsi.buildilrBase ilr
 #'
-#' @examples
 get_predictions_coda = function(data = c(),            # dataframe with COMPOSITION (BASELINE (AND FOLLWOUP), OUTCOME, COVARIATES)
                                 comp_bl = c(),    # names of composition variables in your dataset (baseline)
                                 comp_fu = c(),    # names of composition variables in your dataset (follow up)

@@ -13,7 +13,6 @@
 #' @return Data frame with composite z score calculated
 #' @export
 #'
-#' @examples
 zComposite = function(x = c(), x_fu = c(), id = c(), sex_strata = FALSE,
                     sex = "Sex", age = c("Age_I", "Age_II"), refs=NULL, df) {
   # subset data

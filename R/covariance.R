@@ -8,7 +8,6 @@
 #'
 #' @importFrom gtools permutations
 #'
-#' @examples
 covariance = function(x){
   x = x[complete.cases(x),]
   D = ncol(x)

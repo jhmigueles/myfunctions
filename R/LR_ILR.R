@@ -3,10 +3,9 @@
 #'
 #' @param compo Matrix or data frame with a composition
 #'
-#' @return
+#' @return Matrix with isometric log ratios calculated
 #' @export
 #'
-#' @examples
 LR_ILR = function(compo){
   D = ncol(compo) #n part composition
   z = rep(list(NA), times = D)

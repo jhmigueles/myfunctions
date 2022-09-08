@@ -11,6 +11,9 @@ outliers(x, k = 1.5)
 
 \item{k}{Constant to consider outliers (default = 1.5)}
 }
+\value{
+Number of outliers in variable
+}
 \description{
 Identify outliers in a given numeric vector
 }

@@ -44,6 +44,9 @@ get_predictions_coda(
 
 \item{model}{"cross-sectional", "longitudinal", or "change"}
 }
+\value{
+Matrix with predictions
+}
 \description{
 Get predictions from CoDA models
 }

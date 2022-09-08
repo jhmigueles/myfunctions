@@ -8,10 +8,9 @@
 #' @param xlab X axis label
 #' @param ylab Y axis label
 #'
-#' @return
+#' @return Bland altman plot
 #' @export
 #'
-#' @examples
 bland.altman = function(x, y, ylim=c(), pch=c(), main=c(), xlab=c(), ylab=c()){
   means = (x + y) / 2
   diffs = x - y

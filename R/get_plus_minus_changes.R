@@ -11,12 +11,11 @@
 #' @param alpha Optional, level of significance of results (default = 0.05)
 #' @param verbose Whether to print output on the progress in the console.
 #'
-#' @return
+#' @return Data frame with predictions
 #' @export
 #'
 #' @importFrom  compositions gsi.buildilrBase ilr
 #'
-#' @examples
 get_plus_minus_changes<-function(
     dataf, # data.frame of data
     y, #name of outcome in dataf

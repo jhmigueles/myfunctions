@@ -10,8 +10,6 @@
 #'
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #' @importFrom car qqPlot Boxplot
-
-#' @examples
 explore = function(dat = c(), idvar = c(), outputdir = "./"){
 
   if (is.character(dat)) {
