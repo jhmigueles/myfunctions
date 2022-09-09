@@ -27,72 +27,48 @@ lm_coda_long = function(compo_baseline,    # Variable names for the baseline com
                         balance = NA,      # balance between behaviors to test
                         dat = db_P1){      # dataset
   
-  # Do we run cross-sectional or longitudinal?
-  if (is.null(compo_followup) & is.null(outcome_followup)) {  # then, cross-sectional
-    # select data
-    dat = dat[, c(compo_baseline, outcome_baseline, moderator, covariates)]
-    dat = dat[complete.cases(dat),]
-    
-    # standardise base compositions
-    old_comps = dat[,compo_baseline]
-    comp_totals = rowSums(old_comps)
-    dat[,compo_baseline] = old_comps/matrix(comp_totals, ncol = length(compo_baseline), nrow = nrow(old_comps))
-    
-    # Define compositions
-    if (is.na(balance) | is.null(balance)) {
-      balance = matrix(data = NA, nrow = length(compo_baseline) - 1, ncol = length(compo_baseline))
-      for (i in 1:nrow(balance)) {
-        if (i == 1) {
-          balance[i,] = c(1, rep(-1, ncol(balance) - 1))
-        } else {
-          zeroes = sum(balance[i - 1,] == 0) + 1
-          balance[i, 1:zeroes] = 0
-          balance[i, zeroes + 1] = 1
-          balance[i, is.na(balance[i,])] = -1
-        }
+  # Define balance if not provided
+  if (is.na(balance) | is.null(balance)) {
+    balance = matrix(data = NA, nrow = length(compo_baseline) - 1, ncol = length(compo_baseline))
+    for (i in 1:nrow(balance)) {
+      if (i == 1) {
+        balance[i,] = c(1, rep(-1, ncol(balance) - 1))
+      } else {
+        zeroes = sum(balance[i - 1,] == 0) + 1
+        balance[i, 1:zeroes] = 0
+        balance[i, zeroes + 1] = 1
+        balance[i, is.na(balance[i,])] = -1
       }
     }
-    psi = gsi.buildilrBase(t(balance))
-    compo_base = ilr(dat[, compo_baseline], V = psi)
-    colnames(compo_base) = paste0("ilr", 1:(length(compo_baseline) - 1), "_base")
-    
-    # Scaling if required
-    if(isTRUE(scale)){
-      dat[,outcome_baseline] = scale(dat[,outcome_baseline])
-      dat[,covariates] = scale(dat[,covariates])
-    }
-    
-    # Define outcome
-    outcome_baseline = as.numeric(as.matrix(dat[,outcome_baseline]))
-    
-    # Model
-    if(length(covariates) < 1) model = lm(outcome_baseline ~ compo_base)
-    if(length(covariates) > 0) model = lm(outcome_baseline~., data = cbind(compo_base, dat[,covariates]))
-    
-  } else if(!is.null(compo_followup) & !is.null(outcome_followup)){ # then, longitudinal
+  }
+  # Do we run cross-sectional or longitudinal?
+  if (is.null(compo_followup) & is.null(outcome_followup)) {  # then, cross-sectional
+    stop("compo_followup and outcome_followup are not specified. 
+          Please, use myfunctions::lm_coda for cross-sectional analyses.")
+  } else if (!is.null(compo_baseline) & !is.null(compo_followup) & 
+             !is.null(outcome_baseline) & !is.null(outcome_followup)) { 
+    # longitudinal with repeated measurements of predictor and outcome
+    # for now, this is adapted to HealthyMoms 
+    # (TO DO: make this piece of code more flexible)
     # select data
     dat = dat[, c(compo_baseline, compo_followup, outcome_baseline, outcome_followup, moderator, covariates)]
     dat = dat[complete.cases(dat),]
     
     # standardise baseline compositions
-    old_comps=dat[,compo_baseline]
-    comp_totals=rowSums(old_comps)
-    cat("These are the quartiles of the summed baseline composition (ideally all equal)\n")
-    print(quantile(comp_totals,seq(0,1,by=0.25), na.rm = TRUE))
-    dat[,compo_baseline]=old_comps/matrix(comp_totals,ncol=length(compo_baseline),nrow=nrow(old_comps))
+    old_comps = dat[,compo_baseline]
+    comp_totals = rowSums(old_comps)
+    dat[,compo_baseline] = old_comps/matrix(comp_totals, ncol = length(compo_baseline), nrow = nrow(old_comps))
     
     # standardise followup compositions
-    old_comps=dat[,compo_followup]
-    comp_totals=rowSums(old_comps)
-    cat("These are the quartiles of the summed baseline composition (ideally all equal)\n")
-    print(quantile(comp_totals,seq(0,1,by=0.25), na.rm = TRUE))
-    dat[,compo_followup]=old_comps/matrix(comp_totals,ncol=length(compo_followup),nrow=nrow(old_comps))
+    old_comps = dat[,compo_followup]
+    comp_totals = rowSums(old_comps)
+    dat[, compo_followup] = old_comps/matrix(comp_totals, ncol = length(compo_followup), nrow = nrow(old_comps))
     
     # Define compositions
-    psi = gsi.buildilrBase(t(balance))
-    compo_base = ilr(dat[,compo_baseline], V=psi)
+    psi = compositions::gsi.buildilrBase(t(balance))
+    compo_base = ilr(dat[,compo_baseline], V = psi)
     colnames(compo_base) = c("ilr1_base", "ilr2_base", "ilr3_base")
-    compo_fup = ilr(dat[,compo_followup], V=psi)
+    compo_fup = ilr(dat[,compo_followup], V = psi)
     colnames(compo_fup) = c("ilr1_fup", "ilr2_fup", "ilr3_fup")
     compo_change = compo_fup - compo_base
     colnames(compo_change) = c("ilr1_ch", "ilr2_ch", "ilr3_ch")
@@ -102,7 +78,7 @@ lm_coda_long = function(compo_baseline,    # Variable names for the baseline com
     outcome_change = as.numeric(as.matrix(outcome_change[,1]))
     
     # Scaling if required
-    if(isTRUE(scale)){
+    if (isTRUE(scale)) {
       dat[,outcome_followup] = scale(dat[,outcome_followup])
       dat[,outcome_baseline] = scale(dat[,outcome_baseline])
       dat[,outcome_change] = scale(dat[,outcome_change])
@@ -111,7 +87,7 @@ lm_coda_long = function(compo_baseline,    # Variable names for the baseline com
     }
     
     # Model
-    if(length(covariates) < 1) {
+    if (length(covariates) < 1) {
       if (length(moderator) == 0) { # no moderation analysis
         model = lm(outcome_change~., data = cbind(compo_base, compo_change,
                                                   dat[,outcome_baseline]))
@@ -157,11 +133,63 @@ lm_coda_long = function(compo_baseline,    # Variable names for the baseline com
                       compo_change[,1] * dat[,moderator])
           colnames(ind)[ncol(ind)] = paste0("ilr1_ch*", moderator)
           model = lm(outcome_change~., data = ind)
-        }
-        
+        } 
       }
-      
     }
+  } else if (!is.null(compo_followup) & 
+             (is.null(outcome_baseline) | is.null(outcome_followup))) {
+    # Repeated measures of compo_followup, only one measured outcome
+    # pick outcome
+    outcome_tmp = c(outcome_baseline, outcome_followup)
+    outcome = outcome_tmp[which(!is.null(outcome_tmp))]
+    rm(outcome_tmp); gc()
+    
+    # select data
+    dat = dat[, c(compo_baseline, compo_followup, outcome, moderator, covariates)]
+    dat = dat[complete.cases(dat),]
+    
+    # standardise baseline compositions
+    old_comps = dat[, compo_baseline]
+    comp_totals = rowSums(old_comps)
+    dat[, compo_baseline] = old_comps/matrix(comp_totals, ncol = length(compo_baseline), nrow = nrow(old_comps))
+    
+    # standardise followup compositions
+    old_comps = dat[, compo_followup]
+    comp_totals = rowSums(old_comps)
+    dat[, compo_followup] = old_comps/matrix(comp_totals, ncol = length(compo_followup), nrow = nrow(old_comps))
+    
+    # Define compositions
+    psi = compositions::gsi.buildilrBase(t(balance))
+    compo_base = compositions::ilr(dat[,compo_baseline], V = psi)
+    colnames(compo_base) = paste0("ilr", 1:ncol(compo_base), "_base")
+    compo_fup = compositions::ilr(dat[,compo_followup], V = psi)
+    colnames(compo_fup) = paste0("ilr", 1:ncol(compo_fup), "_fup")
+    compo_change = compo_fup - compo_base
+    colnames(compo_change) = paste0("ilr", 1:ncol(compo_change), "_ch")
+    
+    # Scaling if required
+    if (isTRUE(scale)) {
+      dat[,outcome] = scale(dat[,outcome])
+      if (length(moderator) > 0) dat[,moderator] = scale(dat[,moderator])
+      dat[,covariates] = scale(dat[,covariates])
+    }
+    
+    # data to fit in model
+    if (longAnalysis == "prospective") compo2 = compo_fup
+    if (longAnalysis == "prospective") compo2 = compo_change
+    
+    if (length(moderator) == 0) {
+      dat2fit = cbind(dat[, c(outcome, covariates)], compo_base, compo2)
+      colnames(dat2fit)[1:(1 + length(covariates))] = c(outcome, covariates)
+    } else if (length(moderator) == 1) {
+      dat2fit = cbind(dat[, c(outcome, covariates)], compo_base, compo2, compo_base * dat[, moderator])
+      colnames(dat2fit)[1:(1 + length(covariates))] = c(outcome, covariates)
+      colnames(dat2fit)[ncol(dat2fit)] = paste0("ilr1_base*", moderator)
+    }
+    
+    # model
+    model = lm(dat2fit[, outcome]~., data = dat2fit[, -1])
+    
   }
   
   return(model)
