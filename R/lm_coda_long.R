@@ -26,176 +26,95 @@ lm_coda_long = function(compo_baseline,    # Variable names for the baseline com
                         scale = FALSE,     # standardize data?
                         balance = NA,      # balance between behaviors to test
                         data){      # dataset
+
+  # Check if it is a cross-sectional analysis 
+  if (is.null(compo_followup) & is.null(outcome_followup)) {
+    stop("compo_followup and outcome_followup are not specified. 
+          Please, use myfunctions::lm_coda for cross-sectional analyses.")
+  }
   
-  # Define balance between behaviors if not provided
-  if (is.na(balance) | is.null(balance)) {
-    balance = matrix(data = NA, nrow = length(compo_baseline) - 1, ncol = length(compo_baseline))
-    for (i in 1:nrow(balance)) {
-      if (i == 1) {
-        balance[i,] = c(1, rep(-1, ncol(balance) - 1))
-      } else {
-        zeroes = sum(balance[i - 1,] == 0) + 1
-        balance[i, 1:zeroes] = 0
-        balance[i, zeroes + 1] = 1
-        balance[i, is.na(balance[i,])] = -1
+  # Define balance between behaviors if not provided ----
+  if (!is.matrix(balance) & !is.data.frame(balance)) {
+    if (is.na(balance) | is.null(balance)) {
+      balance = matrix(data = NA, nrow = length(compo_baseline) - 1, ncol = length(compo_baseline))
+      for (i in 1:nrow(balance)) {
+        if (i == 1) {
+          balance[i,] = c(1, rep(-1, ncol(balance) - 1))
+        } else {
+          zeroes = sum(balance[i - 1,] == 0) + 1
+          balance[i, 1:zeroes] = 0
+          balance[i, zeroes + 1] = 1
+          balance[i, is.na(balance[i,])] = -1
+        }
       }
+    } else {
+      stop("balance should be a matrix or data frame with the desired time exchange
+           between the composition parts. Leave empty for automatic calculation.")
     }
   }
   
-  # Select data
+  psi = compositions::gsi.buildilrBase(t(balance))
+  
+  # Select data ----
   data = data[, c(compo_baseline, compo_followup, outcome_baseline, outcome_followup, moderator, covariates)]
   data = data[complete.cases(data),]
   
-  
-  
-  # Do we run cross-sectional or longitudinal?
-  if (is.null(compo_followup) & is.null(outcome_followup)) {  # then, cross-sectional
-    stop("compo_followup and outcome_followup are not specified. 
-          Please, use myfunctions::lm_coda for cross-sectional analyses.")
-  } else if (!is.null(compo_baseline) & !is.null(compo_followup) & 
-             !is.null(outcome_baseline) & !is.null(outcome_followup)) { 
-    # longitudinal with repeated measurements of predictor and outcome
-    # for now, this is adapted to HealthyMoms 
-    # (TO DO: make this piece of code more flexible)
-
-    
-    # standardise baseline compositions
-    old_comps = data[,compo_baseline]
-    comp_totals = rowSums(old_comps)
-    data[,compo_baseline] = old_comps/matrix(comp_totals, ncol = length(compo_baseline), nrow = nrow(old_comps))
-    
-    # standardise followup compositions
-    old_comps = data[,compo_followup]
-    comp_totals = rowSums(old_comps)
-    data[, compo_followup] = old_comps/matrix(comp_totals, ncol = length(compo_followup), nrow = nrow(old_comps))
-    
-    # Define compositions
-    psi = compositions::gsi.buildilrBase(t(balance))
-    compo_base = ilr(data[,compo_baseline], V = psi)
-    colnames(compo_base) = c("ilr1_base", "ilr2_base", "ilr3_base")
-    compo_fup = ilr(data[,compo_followup], V = psi)
-    colnames(compo_fup) = c("ilr1_fup", "ilr2_fup", "ilr3_fup")
-    compo_change = compo_fup - compo_base
-    colnames(compo_change) = c("ilr1_ch", "ilr2_ch", "ilr3_ch")
-    
-    # Define outcome
-    outcome_change = data[,outcome_followup] - data[,outcome_baseline]
-    outcome_change = as.numeric(as.matrix(outcome_change[,1]))
-    
-    # Scaling if required
-    if (isTRUE(scale)) {
-      data[,outcome_followup] = scale(data[,outcome_followup])
-      data[,outcome_baseline] = scale(data[,outcome_baseline])
-      data[,outcome_change] = scale(data[,outcome_change])
-      if (length(moderator) > 0) data[,moderator] = scale(data[,moderator])
-      data[,covariates] = scale(data[,covariates])
-    }
-    
-    # Model
-    if (length(covariates) < 1) {
-      if (length(moderator) == 0) { # no moderation analysis
-        model = lm(outcome_change~., data = cbind(compo_base, compo_change,
-                                                  data[,outcome_baseline]))
-      } else if (length(moderator) == 1) { # moderation analysis
-        if (longAnalysis == "prospective") {
-          ind = cbind(compo_base, compo_change,
-                      data[,outcome_baseline],
-                      data[,moderator],
-                      compo_base[,1] * data[,moderator])
-          colnames(ind)[ncol(ind)] = paste0("ilr1_base*", moderator)
-          model = lm(outcome_change~., data = ind)
-        } else if (longAnalysis == "change") {
-          ind = cbind(compo_base, compo_change,
-                      data[,outcome_baseline],
-                      data[,moderator],
-                      compo_change[,1] * data[,moderator])
-          colnames(ind)[ncol(ind)] = paste0("ilr1_ch*", moderator)
-          model = lm(outcome_change~., data = ind)
-        }
-        
-      }
-      
-    }
-    if (length(covariates) > 0) {
-      if (length(moderator) == 0) { # no moderation analysis
-        model = lm(outcome_change~., data = cbind(compo_base, compo_change,
-                                                  data[,outcome_baseline],
-                                                  data[,covariates]))
-      } else if (length(moderator) == 1) { # moderation analysis
-        if (longAnalysis == "prospective") {
-          ind = cbind(compo_base, compo_change,
-                      data[,outcome_baseline],
-                      data[,moderator],
-                      data[,covariates],
-                      compo_base[,1] * data[,moderator])
-          colnames(ind)[ncol(ind)] = paste0("ilr1_base*", moderator)
-          model = lm(outcome_change~., data = ind)
-        } else if (longAnalysis == "change") {
-          ind = cbind(compo_base, compo_change,
-                      data[,outcome_baseline],
-                      data[,moderator],
-                      data[,covariates],
-                      compo_change[,1] * data[,moderator])
-          colnames(ind)[ncol(ind)] = paste0("ilr1_ch*", moderator)
-          model = lm(outcome_change~., data = ind)
-        } 
-      }
-    }
-  } else if (!is.null(compo_followup) & 
-             (is.null(outcome_baseline) | is.null(outcome_followup))) {
-    # Repeated measures of compo_followup, only one measured outcome
-    # pick outcome
-    outcome_tmp = c(outcome_baseline, outcome_followup)
-    outcome = outcome_tmp[which(!is.null(outcome_tmp))]
-    rm(outcome_tmp); gc()
-    
-    # select data
-    data = data[, c(compo_baseline, compo_followup, outcome, moderator, covariates)]
-    data = data[complete.cases(data),]
-    
-    # standardise baseline compositions
+  # Standardize compositions and get ILR coordinates ----
+  if (!is.null(compo_baseline)) {
     old_comps = data[, compo_baseline]
     comp_totals = rowSums(old_comps)
     data[, compo_baseline] = old_comps/matrix(comp_totals, ncol = length(compo_baseline), nrow = nrow(old_comps))
-    
-    # standardise followup compositions
+    compo_base = compositions::ilr(data[,compo_baseline], V = psi)
+    colnames(compo_base) = paste0("ilr", 1:ncol(compo_base), "_base")
+  }
+  if (!is.null(compo_followup)) {
     old_comps = data[, compo_followup]
     comp_totals = rowSums(old_comps)
     data[, compo_followup] = old_comps/matrix(comp_totals, ncol = length(compo_followup), nrow = nrow(old_comps))
-    
-    # Define compositions
-    psi = compositions::gsi.buildilrBase(t(balance))
-    compo_base = compositions::ilr(data[,compo_baseline], V = psi)
-    colnames(compo_base) = paste0("ilr", 1:ncol(compo_base), "_base")
     compo_fup = compositions::ilr(data[,compo_followup], V = psi)
     colnames(compo_fup) = paste0("ilr", 1:ncol(compo_fup), "_fup")
+    # compo change
     compo_change = compo_fup - compo_base
     colnames(compo_change) = paste0("ilr", 1:ncol(compo_change), "_ch")
-    
-    # Scaling if required
-    if (isTRUE(scale)) {
-      data[,outcome] = scale(data[,outcome])
-      if (length(moderator) > 0) data[,moderator] = scale(data[,moderator])
-      data[,covariates] = scale(data[,covariates])
-    }
-    
-    # data to fit in model
-    if (longAnalysis == "prospective") compo2 = compo_fup
-    if (longAnalysis == "change") compo2 = compo_change
-    
-    if (length(moderator) == 0) {
-      dat2fit = cbind(data[, c(outcome, covariates)], compo_base, compo2)
-      colnames(dat2fit)[1:(1 + length(covariates))] = c(outcome, covariates)
-    } else if (length(moderator) == 1) {
-      dat2fit = cbind(data[, c(outcome, covariates)], compo_base, compo2, compo_base * data[, moderator])
-      colnames(dat2fit)[1:(1 + length(covariates))] = c(outcome, covariates)
-      colnames(dat2fit)[ncol(dat2fit)] = paste0("ilr1_base*", moderator)
-    }
-    
-    # model
-    model = lm(dat2fit[, outcome]~., data = dat2fit[, -1])
-    
   }
+  
+  # Define outcome ----
+  if (!is.null(outcome_baseline) & !is.null(outcome_followup)) {
+    outcome = data[,outcome_followup] - data[,outcome_baseline]
+    outcome = as.numeric(as.matrix(outcome[,1]))
+  } else if (is.null(outcome_baseline) | is.null(outcome_followup)) {
+    outcome_tmp = c(outcome_baseline, outcome_followup)
+    outcome = outcome_tmp[which(!is.null(outcome_tmp))]
+    outcome_baseline = NULL # so that it is not included in data2fit later on
+    rm(outcome_tmp); gc()
+  }
+  
+  # data to fit in model ----
+  if (longAnalysis == "prospective") compo2 = compo_fup
+  if (longAnalysis == "change") compo2 = compo_change
+  
+  if (length(moderator) == 0) {
+    dat2fit = cbind(data[, c(outcome, covariates, outcome_baseline)], compo_base, compo2)
+    if (colnames(dat2fit)[1] == "") colnames(dat2fit)[1] = outcome
+  } else if (length(moderator) == 1) {
+    if (!is.numeric(data[, moderator])) stop("Moderator should be a numeric variable in the dataset!")
+    if (longAnalysis == "prospective") {
+      ilrMOD = compo_base[,1]
+      ilrMODn = "ilr1_base*"
+    } else if (longAnalysis == "change") {
+      ilrMOD = compo_change[,1]
+      ilrMODn = "ilr1_ch*"
+    }
+    dat2fit = cbind(data[, c(outcome, covariates, outcome_baseline, moderator)], compo_base, compo2, ilrMOD * data[, moderator])
+    if (colnames(dat2fit)[1] == "") colnames(dat2fit)[1] = outcome
+    colnames(dat2fit)[ncol(dat2fit)] = paste0("ilr1_base*", moderator)
+  }
+  
+  # Scaling if required
+  if (isTRUE(scale)) dat2fit = scale(dat2fit)
+  
+  # Fit model ----
+  model = lm(dat2fit[, outcome]~., data = dat2fit[, -1])
   
   return(model)
 }
