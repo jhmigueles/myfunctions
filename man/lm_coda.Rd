@@ -15,7 +15,7 @@ lm_coda(data, compo, outcome, covariates = c(), scale = FALSE)
 
 \item{covariates}{String with names of covariates (optional) or matrix/dataframe with these variables}
 
-\item{scale}{Logica. Whether to standardize results (default = FALSE)}
+\item{scale}{Logical. Whether to standardize results (default = FALSE)}
 }
 \value{
 Linear regression model (lm class)

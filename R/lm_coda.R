@@ -4,7 +4,7 @@
 #' @param compo String with colnames of composition variables or matrix/dataframe with these variables
 #' @param outcome String with colname of outcome or numeric vector with the outcome
 #' @param covariates String with names of covariates (optional) or matrix/dataframe with these variables
-#' @param scale Logica. Whether to standardize results (default = FALSE)
+#' @param scale Logical. Whether to standardize results (default = FALSE)
 #'
 #' @return Linear regression model (lm class)
 #' @export

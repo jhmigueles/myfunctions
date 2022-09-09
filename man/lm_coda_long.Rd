@@ -6,15 +6,15 @@
 \usage{
 lm_coda_long(
   compo_baseline,
-  compo_followup,
+  compo_followup = NULL,
   outcome_baseline,
-  outcome_followup,
-  moderator = c(),
+  outcome_followup = NULL,
+  moderator = NULL,
   longAnalysis = c("prospective", "change")[1],
-  covariates,
+  covariates = NULL,
   scale = FALSE,
   balance = NA,
-  dat = db_P1
+  data
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ lm_coda_long(
 
 \item{balance}{Balance between behaviors to be used in the ILR coordinates}
 
-\item{dat}{Data frame with data}
+\item{data}{Data frame with data}
 }
 \value{
 List with models fit for each one of the ILR coordinates as leading coordinate
