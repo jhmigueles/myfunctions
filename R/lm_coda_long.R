@@ -109,6 +109,7 @@ lm_coda_long = function(compo_baseline,    # Variable names for the baseline com
     if (colnames(dat2fit)[1] == "") colnames(dat2fit)[1] = outcome
     colnames(dat2fit)[ncol(dat2fit)] = paste0("ilr1_base*", moderator)
   }
+  dat2fit = as.data.frame(dat2fit)
   
   # Scaling if required
   if (isTRUE(scale)) dat2fit = scale(dat2fit)
