@@ -69,9 +69,9 @@ explore = function(dat = c(), idvar = c(), outputdir = "./"){
                    quantile(dat[,i], na.rm = T),
                    outliers(dat[,i]),
                    outliers(dat[,i], k = 3))
-    write.csv(desc, file.path(outputdir, "descriptives.csv"), row.names = F)
     setTxtProgressBar(pb, i)
   }
   dev.off()
+  write.csv(desc, file.path(outputdir, "descriptives.csv"), row.names = F)
   print(paste(i, "variables explored"))
 }
