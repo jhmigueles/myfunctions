@@ -29,11 +29,11 @@ explore = function(dat = c(), idvar = c(), outputdir = "./"){
   dat.tmp = dat[which(is.na(dat[,idvar])==F),]
 
   #Subsetting only numeric variables
-  numstmp=c()
-  for (i in 1:ncol(dat.tmp)) numstmp[i]=length(unique(dat.tmp[,i]))
-  nums = which(numstmp > 4)
-
-  dat = dat.tmp[,nums]
+  # numstmp=c()
+  # for (i in 1:ncol(dat.tmp)) numstmp[i]=length(unique(dat.tmp[,i]))
+  # nums = which(numstmp > 4)
+  # 
+  # dat = dat.tmp[,nums]
 
   nums = which(sapply(dat, is.numeric))
   dat = dat[,nums]
