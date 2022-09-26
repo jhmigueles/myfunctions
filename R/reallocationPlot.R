@@ -109,6 +109,6 @@ reallocationPlot = function(data = c(), comp = c(),
   # ribbon 1
   if (ribbon) {
     polygon(x = c(data$delta, rev(data$delta)), y = c(data$ci_lo, rev(data$ci_up)),
-            border = NA, col = alpha(col, alpha), fillOddEven = FALSE)
+            border = NA, col = add_alpha(col, alpha), fillOddEven = FALSE)
   }
 }
