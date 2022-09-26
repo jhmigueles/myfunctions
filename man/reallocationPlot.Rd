@@ -58,6 +58,12 @@ reallocationPlot(
 \item{ribbon}{Logical. Whether to plot confidence intervals of the predictions}
 
 \item{font}{Font to use (default = "Times New Roman")}
+
+\item{main}{Title of the plot}
+
+\item{col}{Color for lines and confidence intervals}
+
+\item{alpha}{Alpha for transparency in confidence intervals}
 }
 \value{
 reallocation plot with predictions

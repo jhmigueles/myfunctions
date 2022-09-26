@@ -17,6 +17,9 @@
 #' @param xaxis.by X axis ticks at every \code{xaxis.by} minutes
 #' @param ribbon Logical. Whether to plot confidence intervals of the predictions
 #' @param font Font to use (default = "Times New Roman")
+#' @param main Title of the plot
+#' @param col Color for lines and confidence intervals
+#' @param alpha Alpha for transparency in confidence intervals
 #'
 #' @details If follow-up composition is provided, it will run prospective and change models/visualizations
 #' @return reallocation plot with predictions
