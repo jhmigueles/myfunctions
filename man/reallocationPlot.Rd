@@ -20,7 +20,10 @@ reallocationPlot(
   ylim = c(),
   xaxis.by = 5,
   ribbon = TRUE,
-  font = "Times New Roman"
+  font = "Times New Roman",
+  main = NULL,
+  col = "black",
+  alpha = 0.2
 )
 }
 \arguments{

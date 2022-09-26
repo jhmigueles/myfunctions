@@ -22,8 +22,6 @@
 #' @return reallocation plot with predictions
 #' @export
 #'
-#' @import ggplot2
-#'
 reallocationPlot = function(data = c(), comp = c(),
                             comp_fup = NULL,
                             comp.names = c(),
@@ -35,14 +33,14 @@ reallocationPlot = function(data = c(), comp = c(),
                             xlim = c(), ylim = c(),
                             xaxis.by = 5,
                             ribbon = TRUE,
-                            font = "Times New Roman"){
-  require(ggplot2)
-
+                            font = "Times New Roman",
+                            main = NULL, col = "black",
+                            alpha = 0.2){
   # define dataset
   df = data[, c(comp, outcome, covs)]
-  if(!is.null(comp_fup)) df = data[,c(comp, comp_fup, outcome, covs)]
+  if (!is.null(comp_fup)) df = data[,c(comp, comp_fup, outcome, covs)]
 
-  if(length(comp.names) == length(comp)) {
+  if (length(comp.names) == length(comp)) {
     colnames(df)[1:length(comp)] = comp.names
     comp = comp.names
   } else {warning("composition names is of different length than the number of
@@ -51,77 +49,63 @@ reallocationPlot = function(data = c(), comp = c(),
 
 
   # get changes
+  if (comparisons == "prop-realloc" & length(decrease) > 0) {
+    warning("Proportional reallocations and decrease arguments incompatible.\n comparisons now set to 'one-v-one'")
+    comparisons = "one-v-one"
+  }
   plot_data = get_plus_minus_changes(dataf = df,
                                      y = outcome,
                                      comps = comp.names,
                                      comps_fup = comp_fup,
                                      covars = covs,
-                                     deltas = seq(xlim[1], xlim[2], by = 1)/(24*60),
+                                     deltas = seq(xlim[1], xlim[2], by = 1)/1440,
                                      # balance = balance,
                                      comparisons = comparisons,
-                                     alpha=0.05, verbose=FALSE)
+                                     alpha = 0.05, verbose = FALSE)
 
   # Define reallocations for plots
   inc = increase
-  if(length(inc) == 0) inc = comp[1]
-
-  dec = decrease
-  if(length(dec) == 0) dec = comp[-1]
-
-  # Subset data to plot
-  if(comparisons == "one-v-one"){
-    data = plot_data[which(plot_data$`comp-` %in% dec &
-                             plot_data$`comp+` == inc),]
-    colnames(data)[which(colnames(data) == "comp-")] = "Replaced"
-    # PLOT
-    if(length(font) > 0) windowsFonts(Times=windowsFont(font))
-
-    yourPlot = ggplot2::ggplot(data) +
-      ggplot2::geom_hline(yintercept = 0, color = "black") +
-      # geom_line(aes(delta, delta_pred, group = Replaced, color = Replaced), size = 2) +
-      ggplot2::geom_line(ggplot2::aes(delta, delta_pred, group = Replaced), size = 2) +
-      # Settings
-      ggplot2::theme_bw()+
-      ggplot2::labs(x=xlab,
-           y=ylab) +
-      ggplot2::scale_x_continuous(breaks = seq(xlim[1], xlim[2], by = xaxis.by)/1440,
-                         labels = seq(xlim[1], xlim[2], by = xaxis.by)) +
-      ggplot2::scale_y_continuous(limits=ylim) +
-      # theme(text=element_text(family="Times", size = 12))
-      ggplot2::theme(text=ggplot2::element_text(size = 12))
-
-    # RIBBON?
-    if(isTRUE(ribbon)){
-      yourPlot = yourPlot +
-        ggplot2::geom_ribbon(ggplot2::aes(x = delta, ymin = ci_lo, ymax = ci_up,
-                        group = Replaced), alpha = 0.2)
-    }
-  } else if(comparisons == "prop-realloc"){
-    data = plot_data[which(plot_data$`comp+` == inc),]
-
-    # PLOT
-    # windowsFonts(Times=windowsFont("Times New Roman"))
-
-    yourPlot = ggplot2::ggplot(data) +
-      ggplot2::geom_hline(yintercept = 0, color = "black") +
-      ggplot2::geom_line(ggplot2::aes(delta, delta_pred), size = 2) +
-
-      # Settings
-      ggplot2::theme_bw()+
-      ggplot2::labs(x=xlab, y=ylab) +
-      ggplot2::scale_x_continuous(breaks = seq(xlim[1], xlim[2], by = xaxis.by)/1440,
-                         labels = seq(xlim[1], xlim[2], by = xaxis.by)) +
-      ggplot2::scale_y_continuous(limits=ylim) +
-      # theme(text=element_text(family="Times", size = 12))
-      ggplot2::theme(text=ggplot2::element_text(size = 12))
-
-    # RIBBON?
-    if(isTRUE(ribbon)){
-      yourPlot = yourPlot +
-        ggplot2::geom_ribbon(aes(x = delta, ymin = ci_lo, ymax = ci_up),
-                    alpha = 0.2, colour= NA)
-    }
+  if (length(inc) == 0) inc = comp[1]
+  if (length(inc) > 1) stop("The function can only handle increasing time in one component at a time. Increase argument should have lenght 1.")
+  
+  if (length(decrease) > 1 & comparisons == "one-v-one") {
+    stop("At the moment the one-v-one plot can only handle one behavior to increase and one behavior to decrease. There are more than 1 behavior to decrease, please select only 1.")
   }
-
-  return(yourPlot)
+  dec = decrease
+  if (length(dec) == 0) dec = comp[-1]
+  
+  # Subset data
+  if (length(dec) == 1) {
+    data = plot_data[which(plot_data$`comp-` %in% dec &
+                             plot_data$`comp+` %in% inc),]
+  } else if (length(dec) > 1) {
+    data = plot_data[which(plot_data$`comp+` %in% inc),]
+  }
+  colnames(data)[which(colnames(data) == "comp-")] = "Replaced"
+  
+  # define xlab and ylab if it is not defined
+  if (length(xlab) == 0) {
+    xlab = paste0("\U2191", dec, " \U2194 ", "\U2191", inc, "\n(min/day)")
+    if (length(dec) > 1) xlab = paste0("Min/day proportionally reallocated to ", inc)
+  }
+  
+  # redefine xlim to multiples of 5
+  xlim = floor(xlim/5) * 5
+  
+  # PLOT
+  par(las = 1)
+  plot(x = data$delta, y = data$delta_pred, type = "l",
+       main = main, col = col, lwd = 3, 
+       xlim = xlim/1440,
+       ylim = ylim, xaxt = "n",
+       ylab = ylab, xlab = xlab)
+  abline(h = 0)
+  axis(side = 1, at = seq(xlim[1], xlim[2], by = xaxis.by)/1440,
+       labels = seq(xlim[1], xlim[2], by = xaxis.by))
+  
+  # ribbon 1
+  if (ribbon) {
+    polygon(x = c(data$delta, rev(data$delta)), y = c(data$ci_lo, rev(data$ci_up)),
+            border = NA, col = alpha(col, alpha), fillOddEven = FALSE)
+  }
 }
