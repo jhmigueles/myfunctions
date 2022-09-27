@@ -38,10 +38,14 @@ reallocationPlot = function(data = c(), comp = c(),
                             ribbon = TRUE,
                             font = "Times New Roman",
                             main = NULL, col = "black",
-                            alpha = 0.2){
+                            alpha = 0.2,
+                            longAnalysis = c("prospective", "change")[1]) {
   # define dataset
   df = data[, c(comp, outcome, covs)]
   if (!is.null(comp_fup)) df = data[,c(comp, comp_fup, outcome, covs)]
+  
+  # keep only complete.cases
+  df = df[complete.cases(df),]
 
   if (length(comp.names) == length(comp)) {
     colnames(df)[1:length(comp)] = comp.names
@@ -49,14 +53,14 @@ reallocationPlot = function(data = c(), comp = c(),
   } else {warning("composition names is of different length than the number of
                   elements in the composition. comp.names argument is not used.")}
 
-
-
-  # get changes
+  # Redefine comparisons if incompatible with increase/decrease
   if (comparisons == "prop-realloc" & length(decrease) > 0) {
     warning("Proportional reallocations and decrease arguments incompatible.\n comparisons now set to 'one-v-one'")
     comparisons = "one-v-one"
   }
-  plot_data = get_plus_minus_changes(dataf = df,
+
+  # get predictions.
+  plot_data = myfunctions::get_plus_minus_changes(dataf = df,
                                      y = outcome,
                                      comps = comp.names,
                                      comps_fup = comp_fup,
@@ -64,6 +68,7 @@ reallocationPlot = function(data = c(), comp = c(),
                                      deltas = seq(xlim[1], xlim[2], by = 1)/1440,
                                      # balance = balance,
                                      comparisons = comparisons,
+                                     longAnalysis = longAnalysis,
                                      alpha = 0.05, verbose = FALSE)
 
   # Define reallocations for plots

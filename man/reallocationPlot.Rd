@@ -23,7 +23,8 @@ reallocationPlot(
   font = "Times New Roman",
   main = NULL,
   col = "black",
-  alpha = 0.2
+  alpha = 0.2,
+  longAnalysis = c("prospective", "change")[1]
 )
 }
 \arguments{

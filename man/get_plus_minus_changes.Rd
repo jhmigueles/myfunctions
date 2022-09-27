@@ -12,6 +12,7 @@ get_plus_minus_changes(
   covars = NULL,
   deltas = c(0, 10, 20)/(24 * 60),
   comparisons = c("one-v-one", "one-v-all", "prop-realloc")[1],
+  longAnalysis = c("prospective", "change")[1],
   alpha = 0.05,
   verbose = FALSE
 )
@@ -30,6 +31,8 @@ get_plus_minus_changes(
 \item{deltas}{A vector of time-component changes (as proportions of compositions, i.e., values between -1 and 1)}
 
 \item{comparisons}{Two choices ("one-v-one" or "prop-realloc")}
+
+\item{longAnalysis}{}
 
 \item{alpha}{Optional, level of significance of results (default = 0.05)}
 
