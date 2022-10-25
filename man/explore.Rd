@@ -4,7 +4,7 @@
 \alias{explore}
 \title{explore}
 \usage{
-explore(dat = c(), idvar = c(), outputdir = "./")
+explore(dat = c(), idvar = c(), outputdir = "./", outputfilename = "data")
 }
 \arguments{
 \item{dat}{Dataset}
@@ -12,6 +12,8 @@ explore(dat = c(), idvar = c(), outputdir = "./")
 \item{idvar}{Subject identification variable}
 
 \item{outputdir}{Directory to store the output}
+
+\item{outputfilename}{Desired tagname for the excel and the pdf files generated}
 }
 \value{
 Nothing, it saves a csv and pdf file with descriptives and visualizations
