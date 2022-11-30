@@ -10,6 +10,8 @@
 #'
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #' @importFrom car qqPlot Boxplot
+#' @importFrom openxlsx write.xlsx
+#' @importFrom GGIR tidyup_df
 explore = function(dat = c(), idvar = c(), outputdir = "./"){
 
   if (is.character(dat)) {
@@ -51,10 +53,12 @@ explore = function(dat = c(), idvar = c(), outputdir = "./"){
       paper = "a4", width = 7, height = 10)
 
   for (i in 2:ncol(dat)){
-    layout(rbind(c(1, 1), c(2, 3)))
-    hist.default(dat[,i], main = colnames(dat[i]))
-    qqPlot(dat[,i], envelope = F, ylab = "Observed value")
-    Boxplot(dat[,i], ylab = colnames(dat)[i])
+    if (!all(is.na(dat[, i]))) {
+      layout(rbind(c(1, 1), c(2, 3)))
+      hist.default(dat[,i], main = colnames(dat[i]))
+      qqPlot(dat[,i], envelope = F, ylab = "Observed value")
+      Boxplot(dat[,i], ylab = colnames(dat)[i])
+    }
     if(!("desc" %in% ls())){
       desc = as.data.frame(matrix(NA, nrow = ncol(dat)-1, ncol = 12))
       colnames(desc) = c("variable","n", "missing", "mean", "sd", "min", "q1", "median", "q3", "max",
@@ -72,6 +76,11 @@ explore = function(dat = c(), idvar = c(), outputdir = "./"){
     setTxtProgressBar(pb, i)
   }
   dev.off()
-  write.csv(desc, file.path(outputdir, "descriptives.csv"), row.names = F)
+  
+  desc = GGIR::tidyup_df(desc, digits = 3)
+  
+  openxlsx::write.xlsx(x = desc, file = file.path(outputdir, "descriptives.xlsx"), asTable = T, overwrite = TRUE,
+                       creator = "Jairo Hidalgo Migueles", sheetName = c("Summary"),
+                       firstRow = TRUE, firstCol = TRUE, colWidths = "auto", na.string = " ")
   print(paste(i, "variables explored"))
 }
