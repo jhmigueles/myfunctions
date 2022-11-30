@@ -20,6 +20,8 @@
 #' @param main Title of the plot
 #' @param col Color for lines and confidence intervals
 #' @param alpha Alpha for transparency in confidence intervals
+#' @param ReallocationLimits limits for the reallocation time in minutes (vector of 2 numbers)
+#' @param longAnalysis either prospective or change
 #'
 #' @details If follow-up composition is provided, it will run prospective and change models/visualizations
 #' @return reallocation plot with predictions
@@ -34,6 +36,7 @@ reallocationPlot = function(data = c(), comp = c(),
                             increase = c(), decrease = c(),
                             xlab = c(), ylab = c(),
                             xlim = c(), ylim = c(),
+                            ReallocationLimits = c(-60, 60),
                             xaxis.by = 5,
                             ribbon = TRUE,
                             font = "Times New Roman",
@@ -65,7 +68,7 @@ reallocationPlot = function(data = c(), comp = c(),
                                      comps = comp.names,
                                      comps_fup = comp_fup,
                                      covars = covs,
-                                     deltas = seq(xlim[1], xlim[2], by = 1)/1440,
+                                     deltas = seq(ReallocationLimits[1], ReallocationLimits[2], by = 1)/1440,
                                      # balance = balance,
                                      comparisons = comparisons,
                                      longAnalysis = longAnalysis,
