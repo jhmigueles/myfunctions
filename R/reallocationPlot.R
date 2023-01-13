@@ -122,4 +122,5 @@ reallocationPlot = function(data = c(), comp = c(),
     polygon(x = c(data$delta, rev(data$delta)), y = c(data$ci_lo, rev(data$ci_up)),
             border = NA, col = add_alpha(col, alpha), fillOddEven = FALSE)
   }
+  return(fit)
 }
