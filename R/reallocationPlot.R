@@ -73,6 +73,9 @@ reallocationPlot = function(data = c(), comp = c(),
                                      comparisons = comparisons,
                                      longAnalysis = longAnalysis,
                                      alpha = 0.05, verbose = FALSE)
+  
+  fit = plot_data[[1]]
+  plot_data = plot_data[[2]]
 
   # Define reallocations for plots
   inc = increase
