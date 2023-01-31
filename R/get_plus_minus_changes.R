@@ -86,8 +86,10 @@ get_plus_minus_changes = function(
     ilr_comps2 = suppressWarnings(compositions::ilr(dataf[,comps_fup], V  = psi))
     ilr_comps2  = as.data.frame(ilr_comps2[1:n,])
     ilr_names = paste0("ilr",1:(n_comp - 1))
-    ilr_comps2 = ilr_comps2 - ilr_comps
-    colnames(ilr_comps2) = paste0(ilr_names, "_ch")
+    if (longAnalysis == "change"){
+      ilr_comps2 = ilr_comps2 - ilr_comps
+      colnames(ilr_comps2) = paste0(ilr_names, "_ch")
+    }
   }
   
   # create df for modelling
