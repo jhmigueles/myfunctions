@@ -269,6 +269,6 @@ get_plus_minus_changes = function(
     ,n = c(n = n,n_comp = n_comp,n_covar = n_covar,n_delta = n_delta)
   )
 
-  return(ret_obj)
+  return(list(lm_X, ret_obj))
 
 }

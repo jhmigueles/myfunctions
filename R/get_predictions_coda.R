@@ -126,6 +126,8 @@ get_predictions_coda = function(data = c(),            # dataframe with COMPOSIT
                                    comparisons = comparisons,
                                    alpha = 0.05, verbose = FALSE)
   }
+  
+  preds = preds[[2]]
 
   # GET ESTIMATES
   if (comparisons == "prop-realloc") {
