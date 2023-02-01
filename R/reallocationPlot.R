@@ -27,6 +27,7 @@
 #' @details If follow-up composition is provided, it will run prospective and change models/visualizations
 #' @return reallocation plot with predictions
 #' @export
+#' @import deltacomp
 #'
 reallocationPlot = function(dc_obj = c(), data = c(), 
                             comps = c(),
