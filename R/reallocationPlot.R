@@ -1,10 +1,9 @@
 #' reallocationPlot
 #' @description Visualization of predictions from CoDA model
 #'
-#' @param data Data frame with the data
-#' @param comp String with the name of the composition variables in dataf
-#' @param comp_fup String with the name of the follow-up composition variables in dataf (optional)
-#' @param comp.names Names of the composition variables to appear in the plot (it will use \code{comp} if not provided)
+#' @param comps String with the name of the composition variables in dataf
+#' @param comps_fup String with the name of the follow-up composition variables in dataf (optional)
+#' @param comps.names Names of the composition variables to appear in the plot (it will use \code{comps} if not provided)
 #' @param outcome String with the name of the outcome in dataf
 #' @param covs String with the name of the covariates
 #' @param comparisons Two choices ("one-v-one" or "prop-realloc")
@@ -20,18 +19,21 @@
 #' @param main Title of the plot
 #' @param col Color for lines and confidence intervals
 #' @param alpha Alpha for transparency in confidence intervals
+#' @param dc_obj 
+#' @param analysis_type 
+#' @param total 
 #' @param ReallocationLimits limits for the reallocation time in minutes (vector of 2 numbers)
-#' @param longAnalysis either prospective or change
 #'
 #' @details If follow-up composition is provided, it will run prospective and change models/visualizations
 #' @return reallocation plot with predictions
 #' @export
 #'
-reallocationPlot = function(data = c(), comp = c(),
-                            comp_fup = NULL,
-                            comp.names = c(),
+reallocationPlot = function(dc_obj = c(), data = c(), 
+                            comps = c(),
+                            comps_fup = NULL,
+                            comps.names = c(),
                             outcome = c(), covs = c(),
-                            comparisons=c("one-v-one","prop-realloc")[1],
+                            comparisons=c("one-v-one", "prop-realloc")[2],
                             # balance = NULL,
                             increase = c(), decrease = c(),
                             xlab = c(), ylab = c(),
@@ -42,51 +44,82 @@ reallocationPlot = function(data = c(), comp = c(),
                             font = "Times New Roman",
                             main = NULL, col = "black",
                             alpha = 0.2,
-                            longAnalysis = c("prospective", "change")[1]) {
+                            analysis_type = c("cross-sectional", "longitudinal")[1],
+                            total = NULL) {
   # define dataset
-  df = data[, c(comp, outcome, covs)]
-  if (!is.null(comp_fup)) df = data[,c(comp, comp_fup, outcome, covs)]
+  df = data[, c(comps, outcome, covs)]
+  if (!is.null(comps_fup)) df = data[,c(comps, comps_fup, outcome, covs)]
   
   # keep only complete.cases
   df = df[complete.cases(df),]
 
-  if (length(comp.names) == length(comp)) {
-    colnames(df)[1:length(comp)] = comp.names
-    comp = comp.names
+  if (length(comps.names) == length(comps)) {
+    colnames(df)[1:length(comps)] = comps.names
+    comps = comps.names
   } else {warning("composition names is of different length than the number of
-                  elements in the composition. comp.names argument is not used.")}
+                  elements in the composition. comps.names argument is not used.")}
 
   # Redefine comparisons if incompatible with increase/decrease
   if (comparisons == "prop-realloc" & length(decrease) > 0) {
     warning("Proportional reallocations and decrease arguments incompatible.\n comparisons now set to 'one-v-one'")
     comparisons = "one-v-one"
   }
+  
+  # standardise compositions
+  if (is.null(total)) {
+    # get total time in composition
+    total = mean(rowSums(df[, comps.names]))
+    df[, comps.names] = compositions::clo(X = df[, comps.names], parts = comps.names, 
+                                          total = total)
+    # same in follow-up composition
+    if (!is.null(comps_fup)) {
+      total_fup = mean(rowSums(df[, comps_fup]))
+      df[, comps_fup] = compositions::clo(X = df[, comps_fup], parts = comps_fup, 
+                                          total = total_fup)
+    }
+  }
 
   # get predictions.
-  plot_data = myfunctions::get_plus_minus_changes(dataf = df,
-                                     y = outcome,
-                                     comps = comp.names,
-                                     comps_fup = comp_fup,
-                                     covars = covs,
-                                     deltas = seq(ReallocationLimits[1], ReallocationLimits[2], by = 1)/1440,
-                                     # balance = balance,
-                                     comparisons = comparisons,
-                                     longAnalysis = longAnalysis,
-                                     alpha = 0.05, verbose = FALSE)
+  plot_data = deltacomp::predict_delta_comps(dataf = df,
+                                             y = outcome,
+                                             comps = comps.names,
+                                             comps_fup = comps_fup,
+                                             covars = covs,
+                                             deltas = seq(ReallocationLimits[1], ReallocationLimits[2], by = 1)/total,
+                                             # balance = balance,
+                                             comparisons = comparisons,
+                                             analysis_type = analysis_type,
+                                             alpha = 0.05)
   
-  fit = plot_data[[1]]
-  plot_data = plot_data[[2]]
+  # get fit
+  if (analysis_type == "cross-sectional") {
+    fit = lm_coda(data = df, compo = comps.names, outcome = outcome, covariates = covs)
+    names(fit) = comps.names
+  } else if (analysis_type == "longitudinal") {
+    for (i in 1:length(comps.names)) {
+      if (i == 1) fit = list()
+      fit[[i]] = lm_coda_long(data = df, 
+                              compo_baseline = comps.names[c(i, (1:length(comps.names))[-i])], 
+                              compo_followup = comps_fup[c(i, (1:length(comps.names))[-i])], 
+                              outcome_baseline = NULL, 
+                              outcome_followup = outcome, 
+                              moderator = NULL, 
+                              longAnalysis = "prospective", 
+                              covariates = covs)
+    }
+    names(fit) = comps.names
+  }
 
   # Define reallocations for plots
   inc = increase
-  if (length(inc) == 0) inc = comp[1]
+  if (length(inc) == 0) inc = comps[1]
   if (length(inc) > 1) stop("The function can only handle increasing time in one component at a time. Increase argument should have lenght 1.")
   
   if (length(decrease) > 1 & comparisons == "one-v-one") {
     stop("At the moment the one-v-one plot can only handle one behavior to increase and one behavior to decrease. There are more than 1 behavior to decrease, please select only 1.")
   }
   dec = decrease
-  if (length(dec) == 0) dec = comp[-1]
+  if (length(dec) == 0) dec = comps[-1]
   
   # Subset data
   if (length(dec) == 1) {
@@ -95,7 +128,7 @@ reallocationPlot = function(data = c(), comp = c(),
   } else if (length(dec) > 1) {
     data = plot_data[which(plot_data$`comp+` %in% inc),]
   }
-  colnames(data)[which(colnames(data) == "comp-")] = "Replaced"
+  colnames(data)[which(colnames(data) == "comps-")] = "Replaced"
   
   # define xlab and ylab if it is not defined
   if (length(xlab) == 0) {
