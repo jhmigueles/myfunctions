@@ -19,9 +19,9 @@
 #' @param main Title of the plot
 #' @param col Color for lines and confidence intervals
 #' @param alpha Alpha for transparency in confidence intervals
-#' @param dc_obj 
-#' @param analysis_type 
-#' @param total 
+#' @param dc_obj Object derived from lm_coda or lm_coda_long
+#' @param analysis_type One of "cross-sectiona", "longitudinal", "change".
+#' @param total Total time to constrain the composition to.
 #' @param ReallocationLimits limits for the reallocation time in minutes (vector of 2 numbers)
 #'
 #' @details If follow-up composition is provided, it will run prospective and change models/visualizations
@@ -81,6 +81,9 @@ reallocationPlot = function(dc_obj = c(), data = c(),
   }
 
   # get predictions.
+  for (covi in 1:length(covs)) {
+    if (is.character(df[, covs[covi]])) df[, covs[covi]] = as.factor(df[, covs[covi]])
+  }
   plot_data = deltacomp::predict_delta_comps(dataf = df,
                                              y = outcome,
                                              comps = comps.names,
@@ -96,7 +99,7 @@ reallocationPlot = function(dc_obj = c(), data = c(),
   if (analysis_type == "cross-sectional") {
     fit = lm_coda(data = df, compo = comps.names, outcome = outcome, covariates = covs)
     names(fit) = comps.names
-  } else if (analysis_type == "longitudinal") {
+  } else {
     for (i in 1:length(comps.names)) {
       if (i == 1) fit = list()
       fit[[i]] = lm_coda_long(data = df, 
@@ -105,7 +108,7 @@ reallocationPlot = function(dc_obj = c(), data = c(),
                               outcome_baseline = NULL, 
                               outcome_followup = outcome, 
                               moderator = NULL, 
-                              longAnalysis = "prospective", 
+                              longAnalysis = analysis_type, 
                               covariates = covs)
     }
     names(fit) = comps.names

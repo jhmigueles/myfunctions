@@ -31,7 +31,7 @@ reallocationPlot(
 )
 }
 \arguments{
-\item{dc_obj}{}
+\item{dc_obj}{Object derived from lm_coda or lm_coda_long}
 
 \item{comps}{String with the name of the composition variables in dataf}
 
@@ -71,9 +71,9 @@ reallocationPlot(
 
 \item{alpha}{Alpha for transparency in confidence intervals}
 
-\item{analysis_type}{}
+\item{analysis_type}{One of "cross-sectiona", "longitudinal", "change".}
 
-\item{total}{}
+\item{total}{Total time to constrain the composition to.}
 }
 \value{
 reallocation plot with predictions
