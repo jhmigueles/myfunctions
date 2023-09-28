@@ -5,7 +5,7 @@
 #'
 #' @return Matrix with isometric log ratios calculated
 #' @export
-#'
+#' @importFrom compositions ilr
 LR_ILR = function(compo){
   D = ncol(compo) #n part composition
   z = rep(list(NA), times = D)
@@ -14,12 +14,13 @@ LR_ILR = function(compo){
     rest = which(1:ncol(compo) != d)
     data = compo[,c(d, rest)]
     tmp = 1
+    z[[d]] = as.data.frame(compositions::ilr(data))
     while (tmp < D) {
-      if (length(z[[d]]) == 1) z[[d]] = data[, 1:(D - 1)]
+      # if (length(z[[d]]) == 1) z[[d]] = data[, 1:(D - 1)]
       cols = which(1:D > tmp)
-      for (i in 1:nrow(z[[d]])) {
-        z[[d]][i, tmp] = sqrt((D - tmp)/(D - tmp + 1))*log(data[i,tmp]/prod(data[i,cols])^(1/(D - tmp)))
-      }
+      # for (i in 1:nrow(z[[d]])) {
+      #   z[[d]][i, tmp] = sqrt((D - tmp)/(D - tmp + 1))*log(data[i,tmp]/prod(data[i,cols])^(1/(D - tmp)))
+      # }
       colnames(z[[d]])[tmp] = paste0(colnames(data)[tmp], "_", paste(colnames(data)[cols], collapse = "."))
       tmp = tmp + 1
     }
