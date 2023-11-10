@@ -4,7 +4,14 @@
 \alias{lm_coda}
 \title{Basic function for cross-sectional linear regression CoDA models}
 \usage{
-lm_coda(data, compo, outcome, covariates = c(), scale = FALSE)
+lm_coda(
+  data,
+  compo,
+  outcome,
+  covariates = c(),
+  moderator = NULL,
+  scale = FALSE
+)
 }
 \arguments{
 \item{data}{data frame or matrix with variables of interest}
@@ -14,6 +21,8 @@ lm_coda(data, compo, outcome, covariates = c(), scale = FALSE)
 \item{outcome}{String with colname of outcome or numeric vector with the outcome}
 
 \item{covariates}{String with names of covariates (optional) or matrix/dataframe with these variables}
+
+\item{moderator}{Optional string with the colname of the interaction term (default = NULL)}
 
 \item{scale}{Logical. Whether to standardize results (default = FALSE)}
 }
