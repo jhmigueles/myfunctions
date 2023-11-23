@@ -5,6 +5,8 @@ vignette: >
   %\VignetteIndexEntry{dummyVignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+resource_files:
+  - GGIRlogo.png
 ---
 
 ```{r, include = FALSE}
@@ -14,11 +16,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(myfunctions)
+```{r, echo=FALSE, out.width = "60%", out.extra='style="border: 0; padding:20px"'}
+knitr::include_graphics("GGIRlogo.png")
 ```
 
+![](GGIRlogo.png)
 
-![](sf_xfig.png)
+<img src="GGIRlogo.png"/>
 
-<img src="GGIRlogo.png">
+<img src="man/figures/GGIRlogo.png"/>

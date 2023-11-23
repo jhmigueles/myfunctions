@@ -4,6 +4,11 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+
+<img src="man/figures/GGIRlogo.png" align="right" alt="" width="120" />
+
+<img src="vignettes/GGIRlogo.png" align="left" alt="" width="120" />
+
 The goal of myfunctions is to ...
 
 ## Installation
